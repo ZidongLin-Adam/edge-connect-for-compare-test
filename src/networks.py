@@ -78,9 +78,13 @@ class InpaintGenerator(BaseNetwork):
             self.init_weights()
 
     def forward(self, x):
+        w_padding = x.size(dim=3) % 4
+        h_padding = x.size(dim=2) % 4
         x = self.encoder(x)
         x = self.middle(x)
         x = self.decoder(x)
+        if(w_padding != 0 or h_padding !=0 ):
+            x = nn.ReflectionPad2d((0, w_padding, 0, h_padding))(x)
         x = (torch.tanh(x) + 1) / 2
 
         return x
@@ -129,9 +133,13 @@ class EdgeGenerator(BaseNetwork):
             self.init_weights()
 
     def forward(self, x):
+        w_padding = x.size(dim=3) % 4
+        h_padding = x.size(dim=2) % 4
         x = self.encoder(x)
         x = self.middle(x)
         x = self.decoder(x)
+        if(w_padding != 0 or h_padding !=0 ):
+            x = nn.ReflectionPad2d((0, w_padding, 0, h_padding))(x)
         x = torch.sigmoid(x)
         return x
 
